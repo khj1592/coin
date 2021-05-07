@@ -21,23 +21,64 @@ def get_start_time(ticker):
     start_time = df.index[0]
     return start_time
 
-def get_ma5(ticker):
-    """5일 이동 평균선 조회"""
+def get_ma5_min5(ticker):
+    """5분간격 이동 평균선 조회"""
     df = pyupbit.get_ohlcv(ticker, interval="minute5", count=5)
     time.sleep(0.1)
     ma5 = df['close'].rolling(5, min_periods=1).mean().iloc[4]
     return ma5
 
-def get_ma5_before(ticker):
-    """5일 이동 평균선 조회"""
+def get_ma5_min5_before(ticker):
+    """5분간격 이전 이동 평균선 조회"""
     df = pyupbit.get_ohlcv(ticker, interval="minute5", count=6)
     time.sleep(0.1)
     ma5 = df['close'].rolling(5, min_periods=1).mean().iloc[4]
     return ma5
 
+def get_ma5_min10(ticker):
+    """10분간격 이동 평균선 조회"""
+    df = pyupbit.get_ohlcv(ticker, interval="minute10", count=5)
+    time.sleep(0.1)
+    ma5 = df['close'].rolling(5, min_periods=1).mean().iloc[4]
+    return ma5
+
+def get_ma5_min10_before(ticker):
+    """10분간격 이전 이동 평균선 조회"""
+    df = pyupbit.get_ohlcv(ticker, interval="minute10", count=6)
+    time.sleep(0.1)
+    ma5 = df['close'].rolling(5, min_periods=1).mean().iloc[4]
+    return ma5
+
+def get_ma5_min30(ticker):
+    """30분간격 이동 평균선 조회"""
+    df = pyupbit.get_ohlcv(ticker, interval="minute30", count=5)
+    time.sleep(0.1)
+    ma5 = df['close'].rolling(5, min_periods=1).mean().iloc[4]
+    return ma5
+
+def get_ma5_min30_before(ticker):
+    """30분간격 이전 이동 평균선 조회"""
+    df = pyupbit.get_ohlcv(ticker, interval="minute30", count=6)
+    time.sleep(0.1)
+    ma5 = df['close'].rolling(5, min_periods=1).mean().iloc[4]
+    return ma5
+
+def get_ma5_min60(ticker):
+    """60분간격 이동 평균선 조회"""
+    df = pyupbit.get_ohlcv(ticker, interval="minute60", count=5)
+    time.sleep(0.1)
+    ma5 = df['close'].rolling(5, min_periods=1).mean().iloc[4]
+    return ma5
+
+def get_ma5_min60_before(ticker):
+    """60분간격 이전 이동 평균선 조회"""
+    df = pyupbit.get_ohlcv(ticker, interval="minute60", count=6)
+    time.sleep(0.1)
+    ma5 = df['close'].rolling(5, min_periods=1).mean().iloc[4]
+    return ma5
 
 def get_balance(ticker):
-    """잔고 조회"""
+    """해당 코인 몇개샀는지 조회 ex 0.37코인"""
     balances = upbit.get_balances()
     time.sleep(0.1)
     for b in balances:
@@ -49,7 +90,7 @@ def get_balance(ticker):
     return 0
 
 def get_Coins_money(ticker):
-    """잔고 조회"""
+    """해당 코인 잔고 조회"""
     balances = upbit.get_balances()
     time.sleep(0.1)
     for b in balances:
@@ -74,24 +115,25 @@ def get_current_price(ticker):
     """현재가 조회"""
     return pyupbit.get_orderbook(tickers=ticker)[0]["orderbook_units"][0]["ask_price"]
 
-def get_ror(target, k):
-    df = pyupbit.get_ohlcv(target, interval="minute5", count=24)
-    df['range'] = (df['high'] - df['low']) * k
-    df['target'] = df['open'] + df['range'].shift(1)
+# def get_ror(target, k):
+#     """가장 좋은 k값"""
+#     df = pyupbit.get_ohlcv(target, interval="minute5", count=24)
+#     df['range'] = (df['high'] - df['low']) * k
+#     df['target'] = df['open'] + df['range'].shift(1)
 
-    fee = 0.0005
-    df['ror'] = np.where(df['high'] > df['target'],
-                         df['close'] / df['target'] - fee,
-                         1)
+#     fee = 0.0005
+#     df['ror'] = np.where(df['high'] > df['target'],
+#                          df['close'] / df['target'] - fee,
+#                          1)
 
-    ror = df['ror'].cumprod()[-2]
-    return ror
+#     ror = df['ror'].cumprod()[-2]
+#     return ror
 
 # 로그인
 upbit = pyupbit.Upbit(access, secret)
 print("autotrade start")
 krw = get_balance("KRW")
-coin_list = ["KRW-ZRX", "KRW-XRP", "KRW-BTG", "KRW-DAWN", "KRW-EOS", "KRW-FLOW", "KRW-BCH", "KRW-LTC", "KRW-NEO", "KRW-CHZ", "KRW-STPT", "KRW-QTUM", "KRW-STRK", "KRW-ADA"]
+coin_list = ['KRW-BTC', 'KRW-ETH', 'KRW-NEO', 'KRW-MTL', 'KRW-LTC', 'KRW-XRP', 'KRW-ETC', 'KRW-OMG', 'KRW-SNT', 'KRW-WAVES', 'KRW-XEM', 'KRW-QTUM', 'KRW-LSK', 'KRW-STEEM', 'KRW-XLM', 'KRW-ARDR', 'KRW-KMD', 'KRW-ARK', 'KRW-STORJ', 'KRW-GRS']
 
 # 자동매매 시작
 while True:
@@ -109,14 +151,20 @@ while True:
             start_time = get_start_time(target)
             end_time = start_time + datetime.timedelta(days=1)
             btc = get_Coins_money(target[4:])
-            ma5 = get_ma5(target)
-            ma5_before = get_ma5_before(target)
+            ma5_5 = get_ma5_min5(target)
+            ma5_5_before = get_ma5_min5_before(target)
+            ma5_10 = get_ma5_min10(target)
+            ma5_10_before = get_ma5_min10_before(target)
+            ma5_30 = get_ma5_min30(target)
+            ma5_30_before = get_ma5_min30_before(target)
+            ma5_60 = get_ma5_min30(target)
+            ma5_60_before = get_ma5_min60_before(target)
             current_price = get_current_price(target)
             sell_val = get_balance(target[4:])
 
             if start_time < now < end_time - datetime.timedelta(seconds=120):
                 target_price = get_target_price(target, 0.2)
-                if target_price < current_price and ma5 < current_price and btc < 5000 and ma5 > ma5_before and current_price < target_price * 1.05:
+                if target_price < current_price and ma5_5 < current_price and ma5_30 < current_price and ma5_60 < current_price and btc < 5000 and ma5_5 > ma5_5_before and current_price < target_price * 1.05 and ma5_30 > ma5_30_before and ma5_60 > ma5_60_before:
                     if krw > 250000:
                         upbit.buy_market_order(target, krw*0.1995)
                     elif krw > 100000:
@@ -130,7 +178,7 @@ while True:
             
             if sell_val != 0 and btc >= 5000:
                 per = get_per(target[4:])
-                if per <= 0.90 or (ma5 <= ma5_before and ma5 > current_price):
+                if per <= 0.90 or (ma5_5 <= ma5_5_before and ma5_5 > current_price and ma5_10 <= ma5_10_before and ma5_10 > current_price):
                     print(target)
                     upbit.sell_market_order(target, sell_val)
                     krw = get_balance("KRW")
