@@ -35,47 +35,34 @@ def get_ma5_min5_before(ticker):
     ma5 = df['close'].rolling(5, min_periods=1).mean().iloc[4]
     return ma5
 
-def get_ma5_min10(ticker):
+def get_ma5_min1(ticker):
     """10분간격 이동 평균선 조회"""
-    df = pyupbit.get_ohlcv(ticker, interval="minute10", count=5)
+    df = pyupbit.get_ohlcv(ticker, interval="minute1", count=5)
     time.sleep(0.1)
     ma5 = df['close'].rolling(5, min_periods=1).mean().iloc[4]
     return ma5
 
-def get_ma5_min10_before(ticker):
+def get_ma5_min1_before(ticker):
     """10분간격 이전 이동 평균선 조회"""
-    df = pyupbit.get_ohlcv(ticker, interval="minute10", count=6)
+    df = pyupbit.get_ohlcv(ticker, interval="minute1", count=6)
     time.sleep(0.1)
     ma5 = df['close'].rolling(5, min_periods=1).mean().iloc[4]
     return ma5
 
-def get_ma5_min30(ticker):
-    """30분간격 이동 평균선 조회"""
-    df = pyupbit.get_ohlcv(ticker, interval="minute30", count=5)
+def get_ma5_min3(ticker):
+    """3분간격 이동 평균선 조회"""
+    df = pyupbit.get_ohlcv(ticker, interval="minute3", count=5)
     time.sleep(0.1)
     ma5 = df['close'].rolling(5, min_periods=1).mean().iloc[4]
     return ma5
 
-def get_ma5_min30_before(ticker):
-    """30분간격 이전 이동 평균선 조회"""
-    df = pyupbit.get_ohlcv(ticker, interval="minute30", count=6)
+def get_ma5_min3_before(ticker):
+    """3분간격 이전 이동 평균선 조회"""
+    df = pyupbit.get_ohlcv(ticker, interval="minute3", count=6)
     time.sleep(0.1)
     ma5 = df['close'].rolling(5, min_periods=1).mean().iloc[4]
     return ma5
 
-def get_ma5_min60(ticker):
-    """60분간격 이동 평균선 조회"""
-    df = pyupbit.get_ohlcv(ticker, interval="minute60", count=5)
-    time.sleep(0.1)
-    ma5 = df['close'].rolling(5, min_periods=1).mean().iloc[4]
-    return ma5
-
-def get_ma5_min60_before(ticker):
-    """60분간격 이전 이동 평균선 조회"""
-    df = pyupbit.get_ohlcv(ticker, interval="minute60", count=6)
-    time.sleep(0.1)
-    ma5 = df['close'].rolling(5, min_periods=1).mean().iloc[4]
-    return ma5
 
 def get_balance(ticker):
     """해당 코인 몇개샀는지 조회 ex 0.37코인"""
@@ -133,7 +120,8 @@ def get_current_price(ticker):
 upbit = pyupbit.Upbit(access, secret)
 print("autotrade start")
 krw = get_balance("KRW")
-coin_list = ['KRW-BTC', 'KRW-ETH', 'KRW-NEO', 'KRW-MTL', 'KRW-LTC', 'KRW-XRP', 'KRW-ETC', 'KRW-OMG', 'KRW-SNT', 'KRW-WAVES', 'KRW-XEM', 'KRW-QTUM', 'KRW-LSK', 'KRW-STEEM', 'KRW-XLM', 'KRW-ARDR', 'KRW-KMD', 'KRW-ARK', 'KRW-STORJ', 'KRW-GRS']
+coin_list = ["KRW-ETH", "KRW-DOGE", "KRW-ETC", "KRW-BTT", "KRW-WAVES", "KRW-SXP", "KRW-VET", "KRW-SRM", "KRW-TRX", "KRW-LINK", "KRW-ZRX", "KRW-XRP", "KRW-BTG"]
+coin_list2 = ["KRW-DAWN", "KRW-EOS", "KRW-FLOW", "KRW-BCH", "KRW-LTC", "KRW-NEO", "KRW-CHZ", "KRW-STPT", "KRW-QTUM", "KRW-STRK", "KRW-ADA", "KRW-BAT", "KRW-POLY"]
 
 # 자동매매 시작
 while True:
@@ -151,20 +139,19 @@ while True:
             start_time = get_start_time(target)
             end_time = start_time + datetime.timedelta(days=1)
             btc = get_Coins_money(target[4:])
+            ma5_3 = get_ma5_min3(target)
+            ma5_3_before = get_ma5_min3_before(target)
             ma5_5 = get_ma5_min5(target)
             ma5_5_before = get_ma5_min5_before(target)
-            ma5_10 = get_ma5_min10(target)
-            ma5_10_before = get_ma5_min10_before(target)
-            ma5_30 = get_ma5_min30(target)
-            ma5_30_before = get_ma5_min30_before(target)
-            ma5_60 = get_ma5_min30(target)
-            ma5_60_before = get_ma5_min60_before(target)
+            ma5_1 = get_ma5_min1(target)
+            ma5_1_before = get_ma5_min1_before(target)
             current_price = get_current_price(target)
             sell_val = get_balance(target[4:])
+            print(target)
 
             if start_time < now < end_time - datetime.timedelta(seconds=120):
-                target_price = get_target_price(target, 0.2)
-                if target_price < current_price and ma5_5 < current_price and ma5_30 < current_price and ma5_60 < current_price and btc < 5000 and ma5_5 > ma5_5_before and current_price < target_price * 1.05 and ma5_30 > ma5_30_before and ma5_60 > ma5_60_before:
+                target_price = get_target_price(target, 0.01)
+                if target_price < current_price and ma5_1 < current_price and btc < 5000 and ma5_1 > ma5_1_before and current_price < target_price * 1.05 and ma5_3 < current_price and ma5_3 > ma5_3_before:
                     if krw > 250000:
                         upbit.buy_market_order(target, krw*0.1995)
                     elif krw > 100000:
@@ -178,7 +165,7 @@ while True:
             
             if sell_val != 0 and btc >= 5000:
                 per = get_per(target[4:])
-                if per <= 0.90 or (ma5_5 <= ma5_5_before and ma5_5 > current_price and ma5_10 <= ma5_10_before and ma5_10 > current_price):
+                if per <= 0.90 or (ma5_1 <= ma5_1_before and ma5_1 > current_price):
                     print(target)
                     upbit.sell_market_order(target, sell_val)
                     krw = get_balance("KRW")
